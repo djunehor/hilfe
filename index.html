@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- SEO Primary Meta Tags -->
+  <title>Hilfe - Real-time Security Incident & Hazard Map Nigeria</title>
+  <meta name="title" content="Hilfe - Real-time Security Incident & Hazard Map Nigeria">
+  <meta name="description" content="Report and track security threats, kidnapping attempts, illegal checkpoints, and roadblocks in Nigeria with live GPS coordinate updates. Stay informed, travel safely, and protect your community.">
+  <meta name="keywords" content="Nigeria security map, kidnapping alerts Nigeria, road hazards Nigeria, travel safety Nigeria, illegal checkpoints, security updates Nigeria, Hilfe safety radar">
+  <meta name="robots" content="index, follow">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/logo.png">
+  <link rel="apple-touch-icon" href="/logo.png">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://hilfe-d3k.pages.dev/">
+  <meta property="og:title" content="Hilfe - Real-time Security Incident & Hazard Map Nigeria">
+  <meta property="og:description" content="Report and track security threats, kidnapping attempts, illegal checkpoints, and roadblocks in Nigeria with live GPS coordinate updates. Stay informed, travel safely, and protect your community.">
+  <meta property="og:image" content="https://hilfe-d3k.pages.dev/og_image.png">
+  <meta property="og:site_name" content="Hilfe Nigeria">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://hilfe-d3k.pages.dev/">
+  <meta property="twitter:title" content="Hilfe - Real-time Security Incident & Hazard Map Nigeria">
+  <meta property="twitter:description" content="Report and track security threats, kidnapping attempts, illegal checkpoints, and roadblocks in Nigeria with live GPS coordinate updates. Stay informed, travel safely, and protect your community.">
+  <meta property="twitter:image" content="https://hilfe-d3k.pages.dev/og_image.png">
+
+  <!-- JSON-LD Structured Data (Schema.org) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Hilfe",
+    "alternateName": "Hilfe Nigeria Security Radar",
+    "description": "A crowd-sourced real-time security radar map of Nigeria allowing citizens to report and keep track of security incidents, kidnapping attempts, roadblocks, and illegal checkpoints.",
+    "url": "https://hilfe-d3k.pages.dev/",
+    "logo": "https://hilfe-d3k.pages.dev/logo.png",
+    "applicationCategory": "SafetyApplication",
+    "operatingSystem": "All",
+    "browserRequirements": "Requires JavaScript and HTML5 Canvas.",
+    "genre": "Security & Safety Map",
+    "offers": {
+      "@type": "Offer",
+      "price": "0.00",
+      "priceCurrency": "USD"
+    }
+  }
+  </script>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+  
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Map Container -->
+    <div id="map"></div>
+
+    <!-- Main Sidebar Overlay -->
+    <aside class="sidebar glass" id="sidebar">
+      <header class="sidebar-header">
+        <div class="logo-area">
+          <img src="/logo.png" alt="Hilfe Logo" class="logo-img">
+          <h1>Hilfe</h1>
+        </div>
+        <p class="tagline">Nigeria Community Security Radar</p>
+      </header>
+
+      <!-- Search Section -->
+      <section class="search-section">
+        <div class="search-box">
+          <input type="text" id="search-input" placeholder="Search place (e.g. Abuja, Ikeja)..." autocomplete="off">
+          <button type="button" id="gps-search-btn" title="Search near my GPS location" aria-label="Search near me">📍</button>
+          <button id="search-btn" aria-label="Search">🔍</button>
+        </div>
+        <div id="active-location" class="location-banner hidden">
+          <span>📍 Near <strong id="location-name"></strong></span>
+          <button id="clear-location-btn" aria-label="Clear location filter">&times;</button>
+        </div>
+        <div id="search-suggestions" class="suggestions-list hidden"></div>
+      </section>
+
+      <!-- Filters -->
+      <section class="filters-section">
+        <h3>Filter Reports</h3>
+        <div class="filter-group">
+          <label for="filter-time">Timeframe</label>
+          <select id="filter-time">
+            <option value="2">Last 2 Hours</option>
+            <option value="6">Last 6 Hours</option>
+            <option value="24" selected>Last 24 Hours</option>
+            <option value="168">Last 7 Days</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filter-category">Incident Type</label>
+          <select id="filter-category">
+            <option value="all">All Incidents</option>
+            <option value="kidnapping">Kidnapping / Attempt</option>
+            <option value="checkpoint">Suspicious Checkpoint</option>
+            <option value="robbery">Armed Robbery</option>
+            <option value="clash">Civil Clash / Protest</option>
+            <option value="other">Other Threats</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- Recent Incidents Feed -->
+      <section class="feed-section">
+        <h3>Recent Alerts</h3>
+        <div id="incident-feed" class="feed-list">
+          <!-- Dynamically populated -->
+          <div class="feed-placeholder">No incidents reported in this timeframe.</div>
+        </div>
+      </section>
+
+      <!-- Report Action Button -->
+      <div class="action-footer">
+        <button id="trigger-report-btn" class="btn btn-danger">
+          <span class="pulse-icon"></span> Report Security Incident
+        </button>
+      </div>
+    </aside>
+
+    <!-- Report Modal Overlay -->
+    <div class="modal-overlay hidden" id="report-modal">
+      <div class="modal-content glass">
+        <button class="close-btn" id="close-modal-btn">&times;</button>
+        <h2>Report Security Incident</h2>
+        <p class="modal-description">Ensure you are in a safe location before reporting. Providing accurate GPS coords helps protect others.</p>
+        
+        <form id="report-form">
+          <div class="form-group">
+            <label for="report-category">Incident Type <span class="required">*</span></label>
+            <select id="report-category" required>
+              <option value="" disabled selected>Select category...</option>
+              <option value="kidnapping">⚠️ Kidnapping / Attempt</option>
+              <option value="checkpoint">🛑 Suspicious Checkpoint / Illegal Toll</option>
+              <option value="robbery">🔫 Armed Robbery / Attack</option>
+              <option value="clash">🔥 Civil Clash / Riot / Protest</option>
+              <option value="other">❓ Other Threat / Hazard</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="report-threat-level">Threat Severity <span class="required">*</span></label>
+            <select id="report-threat-level" required>
+              <option value="low">🟢 Low (Minor Hazard / Disruption)</option>
+              <option value="medium" selected>🟡 Medium (Suspicious / Moderate Risk)</option>
+              <option value="high">🟠 High (Armed Threat / Danger)</option>
+              <option value="critical">🔴 Critical (Life-threatening / Active Kidnap)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="report-title">Brief Summary <span class="required">*</span></label>
+            <input type="text" id="report-title" placeholder="e.g. Armed men along expressway" required max="100">
+          </div>
+
+          <div class="form-group">
+            <label for="report-details">Additional Details</label>
+            <textarea id="report-details" rows="3" placeholder="Describe vehicles, number of suspects, directions, etc."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="report-image">Verification Image</label>
+            <div class="file-upload-wrapper">
+              <input type="file" id="report-image" accept="image/*">
+            </div>
+            <div id="image-preview-container" class="image-preview-box hidden">
+              <img id="image-preview" src="" alt="Incident preview">
+              <button type="button" id="remove-image-btn" title="Remove image">&times;</button>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Coordinates <span class="required">*</span></label>
+              <div class="coords-display">
+                <span id="coords-text">Click on the map to pin location or use GPS</span>
+                <button type="button" id="use-gps-btn" class="btn btn-secondary btn-sm">📍 Use My GPS</button>
+              </div>
+              <input type="hidden" id="report-lat" required>
+              <input type="hidden" id="report-lng" required>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-submit-report">Submit Incident Report</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+  <!-- Main Logic -->
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
